@@ -18,7 +18,7 @@ RUN echo user_allow_other >> /etc/fuse.conf
 COPY run.sh run.sh
 RUN apk --no-cache add parallel
 
-RUN adduser -D -u1000 mfsuser
+RUN adduser -D -u10001 mfsuser
 USER mfsuser
 
 CMD ["./run.sh"]
