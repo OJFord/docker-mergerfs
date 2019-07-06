@@ -15,7 +15,10 @@ COPY --from=builder /bin/mergerfs /usr/local/bin/mergerfs
 RUN apk --no-cache add fuse libgcc libstdc++
 RUN echo user_allow_other >> /etc/fuse.conf
 
+COPY run.sh run.sh
+RUN apk --no-cache add parallel
+
 RUN adduser -D -u1000 mfsuser
 USER mfsuser
 
-CMD ["/usr/local/bin/mergerfs", "-d", "-o", "defaults,allow_other,use_ino,func.getattr=newest", "/bricks/*", "/mnt/pool"]
+CMD ["./run.sh"]

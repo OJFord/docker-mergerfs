@@ -9,14 +9,14 @@ Image is available at:
 docker.io/ojford/mergerfs
 ```
 
-Paths to pool should be mounted within:
+Paths to pool should be mounted in directories within:
 ```
-/bricks/
+/mnt/bricksets/
 ```
 
-The pool will be mounted at:
+For each directory there, a pool of the same name will be mounted within:
 ```
-/mnt/pool
+/mnt/pools/
 ```
 
 `fusermount -u` is *not* run automatically.
