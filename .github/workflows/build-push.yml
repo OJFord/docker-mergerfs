@@ -1,0 +1,56 @@
+name: Build & publish
+on:
+  push:
+    branches: master
+    tags: 'v*'
+    paths:
+      - Dockerfile
+      - .github/workflows/build-push.yml
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ojford
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ojford
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Get version
+        id: get-version
+        run: |
+          echo "::set-output name=version::$(sed -n -E 's/.*MERGERFS_VERSION (.*)/\1/p' Dockerfile)"
+          echo "::set-output name=release::$(${{ startsWith(github.ref, 'refs/tags') }} && echo "${GITHUB_REF#refs/tags/v*-}" || echo '')"
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          tags: |
+            ojford/mergerfs:latest
+            ojford/mergerfs:${{ steps.get-version.outputs.version }}
+            ojford/mergerfs:${{ steps.get-version.outputs.version }}-${{ steps.get-version.outputs.release }}
+            ghcr.io/ojford/mergerfs:latest
+            ghcr.io/ojford/mergerfs:${{ steps.get-version.outputs.version }}
+            ghcr.io/ojford/mergerfs:${{ steps.get-version.outputs.version }}-${{ steps.get-version.outputs.release }}

@@ -7,6 +7,14 @@ All credit for the file-system itself to trapexit/mergerfs.
 Image is available at:
 ```
 docker.io/ojford/mergerfs
+ghcr.io/ojford/mergerfs
+```
+
+With tags in the form:
+```
+latest
+<mergerfs-version>
+<mergerfs-version>-<this-repo-release-number>
 ```
 
 Paths to pool should be mounted in directories within:

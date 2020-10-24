@@ -1,0 +1,28 @@
+name: Auto-bump mergerfs
+
+on:
+  schedule:
+    - cron:  '45 23 * * *'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # non-shallow, in order to be able to push
+          fetch-depth: 0
+
+      - name: Fetch latest mergerfs release
+        id: latest
+        run: echo "::set-output name=mergerfs_version::$(curl --silent --location 'https://api.github.com/repos/trapexit/mergerfs/releases/latest' | jq -r ".tag_name")"
+
+      - name: Bump Dockerfile
+        run: sed -i -E "s/(MERGERFS_VERSION) .*/\1 ${{ steps.latest.outputs.mergerfs_version }}/" Dockerfile
+
+      - uses: EndBug/add-and-commit@v5
+        name: Commit change
+        with:
+          add: 'Dockerfile'
+          message: Bump mergerfs to v${{ steps.latest.outputs.mergerfs_version }}
+          tag: v${{ steps.latest.outputs.mergerfs_version }}-1
